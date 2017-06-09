@@ -87,17 +87,12 @@ func (t *SimpleChaincode) Pagar(stub shim.ChaincodeStubInterface, args []string)
 	DataSaida := args[4]
 	Valor := args[5]
 
-	size, err := strconv.Atoi(args[5])
-	if err != nil {
-		return shim.Error("5rd argument must be a numeric string")
-	}
-
 	str := `{
 		"pagador": "` + Pagador + `",
 		"recebedor": "` + Recebedor + `", 
 		"dataEntrada": "` + DataEntrada + `", 
 		"dataSaida": "` + DataSaida + `", 
-		"valor": "` + strconv.Itoa(Valor) + `"
+		"valor": "` + Valor + `"
 	}`
 
 	err = stub.PutState(Recebedor, []byte(str))

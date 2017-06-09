@@ -40,9 +40,15 @@ type Pagamento struct {
 	Valor       int    `json:"valor"`
 }
 
-func (t *SimpleChaincode) Init(stub shim.ChaincodeStubInterface, function string, args []string) pb.Response {
-	fmt.Printf("Inicializando Chaincode - Pagamento Casinha")
+func main() {
+	err := shim.Start(new(SimpleChaincode))
+	if err != nil {
+		fmt.Printf("Error starting Simple chaincode: %s", err)
+	}
+}
 
+func (t *SimpleChaincode) Init(stub shim.ChaincodeStubInterface) pb.Response {
+	fmt.Printf("Inicializando Chaincode - Pagamento Casinha")
 	_, args := stub.GetFunctionAndParameters()
 	var Aval int
 	var err error
@@ -105,11 +111,11 @@ func Pagar(stub shim.ChaincodeStubInterface, args []string) pb.Response {
 }
 
 // Deletes an entity from state
-func delete(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
+func delete(stub shim.ChaincodeStubInterface, args []string) pb.Response {
 	fmt.Printf("Running delete")
 
 	if len(args) != 1 {
-		return nil, errors.New("Incorrect number of arguments. Expecting 1")
+		return shim.Error("Incorrect number of arguments. Expecting 1")
 	}
 
 	Recebedor := args[0]
@@ -117,16 +123,18 @@ func delete(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
 	// Delete the key from the state in ledger
 	err := stub.DelState(Recebedor)
 	if err != nil {
-		return nil, errors.New("Failed to delete state")
+		return shim.Error(err.Error())
 	}
 
-	return nil, nil
+	return shim.Success(nil)
 }
 
 // Invoke callback representing the invocation of a chaincode
 // This chaincode will manage two accounts A and B and will transfer X units from A to B upon invoke
-func (t *SimpleChaincode) Invoke(stub shim.ChaincodeStubInterface, function string, args []string) pb.Response {
-	fmt.Printf("Invoke called, determining function")
+func (t *SimpleChaincode) Invoke(stub shim.ChaincodeStubInterface) pb.Response {
+	function, args := stub.GetFunctionAndParameters()
+	fmt.Println(" ")
+	fmt.Println("starting invoke, for - " + function)
 
 	// Handle different functions
 	if function == "invoke" {
@@ -142,11 +150,15 @@ func (t *SimpleChaincode) Invoke(stub shim.ChaincodeStubInterface, function stri
 		return t.delete(stub, args)
 	}
 
-	return nil, errors.New("Received unknown function invocation")
+	// error out
+	fmt.Println("Received unknown invoke function name - " + function)
+	return shim.Error("Received unknown invoke function name - '" + function + "'")
 }
 
-func (t *SimpleChaincode) Run(stub shim.ChaincodeStubInterface, function string, args []string) pb.Response {
+func (t *SimpleChaincode) Run(stub shim.ChaincodeStubInterface) pb.Response {
 	fmt.Printf("Run called, passing through to Invoke (same function)")
+
+	function, args := stub.GetFunctionAndParameters()
 
 	// Handle different functions
 	if function == "invoke" {
@@ -162,7 +174,8 @@ func (t *SimpleChaincode) Run(stub shim.ChaincodeStubInterface, function string,
 		return t.delete(stub, args)
 	}
 
-	return nil, errors.New("Received unknown function invocation")
+	fmt.Println("Received unknown invoke function name - " + function)
+	return shim.Error("Received unknown invoke function name - '" + function + "'")
 }
 
 // Query callback representing the query of a chaincode
@@ -190,11 +203,4 @@ func (t *SimpleChaincode) Query(stub shim.ChaincodeStubInterface, function strin
 
 	fmt.Println("- end Query")
 	return shim.Success(valAsbytes)                  //send it onward
-}
-
-func main() {
-	err := shim.Start(new(SimpleChaincode))
-	if err != nil {
-		fmt.Printf("Error starting Simple chaincode: %s", err)
-	}
 }

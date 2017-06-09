@@ -56,7 +56,7 @@ func (t *SimpleChaincode) Init(stub shim.ChaincodeStubInterface, function string
 	}
 
 	// this is a very simple dumb test.  let's write to the ledger and error on any errors
-	err = stub.PutState(Aval, []byte(strconv.Itoa(Aval))) //making a test var "selftest", its handy to read this right away to test the network
+	err = stub.PutState(Aval, []byte(strconv.Itoa("1"))) //making a test var "selftest", its handy to read this right away to test the network
 	if err != nil {
 		return nil, err                          //self-test fail
 	}

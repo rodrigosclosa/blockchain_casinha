@@ -25,7 +25,6 @@ import (
 	"strconv"
 
 	"github.com/hyperledger/fabric/core/chaincode/shim"
-	pb "github.com/hyperledger/fabric/protos/peer"
 )
 
 // SimpleChaincode example simple Chaincode implementation
@@ -37,7 +36,7 @@ type Pagamento struct {
 	Recebedor   string `json:"recebedor"`
 	DataEntrada string `json:"dataEntrada"`
 	DataSaida   string `json:"dataSaida"`
-	Valor       int    `json:"valor"`
+	Valor       string    `json:"valor"`
 }
 
 func main() {
@@ -47,44 +46,43 @@ func main() {
 	}
 }
 
-func (t *SimpleChaincode) Init(stub shim.ChaincodeStubInterface) pb.Response {
+func (t *SimpleChaincode) Init(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
 	fmt.Printf("Inicializando Chaincode - Pagamento Casinha")
-	_, args := stub.GetFunctionAndParameters()
 	var Aval int
 	var err error
 
 	if len(args) != 1 {
-		return shim.Error("Incorrect number of arguments. Expecting 1")
+		return nil, errors.New("Incorrect number of arguments. Expecting 4")
 	}
 
 	// convert numeric string to integer
 	Aval, err = strconv.Atoi(args[0])
 	if err != nil {
-		return shim.Error("Expecting a numeric string argument to Init()")
+		return nil, errors.New("Expecting integer value for asset holding")
 	}
 
 	// this is a very simple dumb test.  let's write to the ledger and error on any errors
 	err = stub.PutState("selftest", []byte(strconv.Itoa(Aval))) //making a test var "selftest", its handy to read this right away to test the network
 	if err != nil {
-		return shim.Error(err.Error())                          //self-test fail
+		return nil, err                          //self-test fail
 	}
 
 	fmt.Println("Pagamento Casinha - ready for action")                          //self-test pass
-	return shim.Success(nil)
+	return nil, nil
 }
 
 // Transaction makes payment of X units from A to B
-func Pagar(stub shim.ChaincodeStubInterface, args []string) pb.Response {
+func (t *SimpleChaincode) Pagar(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
 	var err error
 	fmt.Println("CHAMANDO Pagar")
 
 	if len(args) != 6 {
-		return shim.Error("Incorrect number of arguments. Expecting 6")
+		return nil, errors.New("Incorrect number of arguments. Expecting 6")
 	}
 
 	err = sanitize_arguments(args)
 	if err != nil {
-		return shim.Error(err.Error())
+		return nil, err
 	}
 
 	Pagador := args[0]
@@ -103,19 +101,19 @@ func Pagar(stub shim.ChaincodeStubInterface, args []string) pb.Response {
 
 	err = stub.PutState(Recebedor, []byte(str))
 	if err != nil {
-		return shim.Error(err.Error())
+		return nil, err
 	}
 
 	fmt.Println("- end Pagar")
-	return shim.Success(nil)
+	return nil, nil
 }
 
 // Deletes an entity from state
-func delete(stub shim.ChaincodeStubInterface, args []string) pb.Response {
+func (t *SimpleChaincode) delete(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
 	fmt.Printf("Running delete")
 
 	if len(args) != 1 {
-		return shim.Error("Incorrect number of arguments. Expecting 1")
+		return nil, errors.New("Incorrect number of arguments. Expecting 1")
 	}
 
 	Recebedor := args[0]
@@ -123,16 +121,15 @@ func delete(stub shim.ChaincodeStubInterface, args []string) pb.Response {
 	// Delete the key from the state in ledger
 	err := stub.DelState(Recebedor)
 	if err != nil {
-		return shim.Error(err.Error())
+		return nil, err
 	}
 
-	return shim.Success(nil)
+	return nil, nil
 }
 
 // Invoke callback representing the invocation of a chaincode
 // This chaincode will manage two accounts A and B and will transfer X units from A to B upon invoke
-func (t *SimpleChaincode) Invoke(stub shim.ChaincodeStubInterface) pb.Response {
-	function, args := stub.GetFunctionAndParameters()
+func (t *SimpleChaincode) Invoke(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
 	fmt.Println(" ")
 	fmt.Println("starting invoke, for - " + function)
 
@@ -151,14 +148,11 @@ func (t *SimpleChaincode) Invoke(stub shim.ChaincodeStubInterface) pb.Response {
 	}
 
 	// error out
-	fmt.Println("Received unknown invoke function name - " + function)
-	return shim.Error("Received unknown invoke function name - '" + function + "'")
+	return nil, errors.New("Received unknown function invocation")
 }
 
-func (t *SimpleChaincode) Run(stub shim.ChaincodeStubInterface) pb.Response {
+func ((t* SimpleChaincode) Run(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
 	fmt.Printf("Run called, passing through to Invoke (same function)")
-
-	function, args := stub.GetFunctionAndParameters()
 
 	// Handle different functions
 	if function == "invoke" {
@@ -174,33 +168,32 @@ func (t *SimpleChaincode) Run(stub shim.ChaincodeStubInterface) pb.Response {
 		return t.delete(stub, args)
 	}
 
-	fmt.Println("Received unknown invoke function name - " + function)
-	return shim.Error("Received unknown invoke function name - '" + function + "'")
+	return nil, errors.New("Received unknown function invocation")
 }
 
 // Query callback representing the query of a chaincode
-func (t *SimpleChaincode) Query(stub shim.ChaincodeStubInterface, function string, args []string) pb.Response {
+func (t *SimpleChaincode) Query(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
 	var key, jsonResp string
 	var err error
 	fmt.Println("CHAMANDO Query")
 
 	if len(args) != 1 {
-		return shim.Error("Incorrect number of arguments. Expecting key of the var to query")
+		return nil, errors.New("Incorrect number of arguments. Expecting name of the person to query")
 	}
 
 	// input sanitation
 	err = sanitize_arguments(args)
 	if err != nil {
-		return shim.Error(err.Error())
+		return nil, err
 	}
 
 	key = args[0]
 	valAsbytes, err := stub.GetState(key)           //get the var from ledger
 	if err != nil {
 		jsonResp = "{\"Error\":\"Failed to get state for " + key + "\"}"
-		return shim.Error(jsonResp)
+		return nil, errors.New(jsonResp)
 	}
 
 	fmt.Println("- end Query")
-	return shim.Success(valAsbytes)                  //send it onward
+	return valAsbytes, nil                  //send it onward
 }

@@ -123,9 +123,9 @@ func (t *SimpleChaincode) Invoke(stub shim.ChaincodeStubInterface, function stri
 	fmt.Println("starting invoke, for - " + function)
 
 	// Handle different functions
-	if function == "invoke" {
+	if function == "pagar" {
 		// Transaction makes payment of X units from A to B
-		fmt.Printf("Function is invoke")
+		fmt.Printf("Function is pagar")
 		return t.Pagar(stub, args)
 	} else if function == "init" {
 		fmt.Printf("Function is init")
@@ -144,9 +144,9 @@ func (t* SimpleChaincode) Run(stub shim.ChaincodeStubInterface, function string,
 	fmt.Printf("Run called, passing through to Invoke (same function)")
 
 	// Handle different functions
-	if function == "invoke" {
+	if function == "pagar" {
 		// Transaction makes payment of X units from A to B
-		fmt.Printf("Function is invoke")
+		fmt.Printf("Function is pagar")
 		return t.Pagar(stub, args)
 	} else if function == "init" {
 		fmt.Printf("Function is init")

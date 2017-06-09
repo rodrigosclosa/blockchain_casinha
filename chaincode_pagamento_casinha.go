@@ -66,7 +66,7 @@ func (t *SimpleChaincode) Init(stub shim.ChaincodeStubInterface, function string
 }
 
 // Transaction makes payment of X units from A to B
-func (t *SimpleChaincode) Pagar(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
+func (t *SimpleChaincode) invoke(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
 	var err error
 	fmt.Println("CHAMANDO Pagar")
 
@@ -123,10 +123,10 @@ func (t *SimpleChaincode) Invoke(stub shim.ChaincodeStubInterface, function stri
 	fmt.Println("starting invoke, for - " + function)
 
 	// Handle different functions
-	if function == "pagar" {
+	if function == "invoke" {
 		// Transaction makes payment of X units from A to B
 		fmt.Printf("Function is pagar")
-		return t.Pagar(stub, args)
+		return t.invoke(stub, args)
 	} else if function == "init" {
 		fmt.Printf("Function is init")
 		return t.Init(stub, function, args)
@@ -135,7 +135,6 @@ func (t *SimpleChaincode) Invoke(stub shim.ChaincodeStubInterface, function stri
 		fmt.Printf("Function is delete")
 		return t.delete(stub, args)
 	}
-
 	// error out
 	return nil, errors.New("Received unknown function invocation")
 }
@@ -144,10 +143,10 @@ func (t* SimpleChaincode) Run(stub shim.ChaincodeStubInterface, function string,
 	fmt.Printf("Run called, passing through to Invoke (same function)")
 
 	// Handle different functions
-	if function == "pagar" {
+	if function == "invoke" {
 		// Transaction makes payment of X units from A to B
 		fmt.Printf("Function is pagar")
-		return t.Pagar(stub, args)
+		return t.invoke(stub, args)
 	} else if function == "init" {
 		fmt.Printf("Function is init")
 		return t.Init(stub, function, args)

@@ -48,7 +48,7 @@ func main() {
 
 func (t *SimpleChaincode) Init(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
 	fmt.Printf("Inicializando Chaincode - Pagamento Casinha")
-	var Aval int
+	var Aval string
 	var err error
 
 	if len(args) != 1 {

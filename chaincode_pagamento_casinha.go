@@ -181,12 +181,6 @@ func (t *SimpleChaincode) Query(stub shim.ChaincodeStubInterface, function strin
 		return nil, errors.New("Incorrect number of arguments. Expecting name of the person to query")
 	}
 
-	// input sanitation
-	err = sanitize_arguments(args)
-	if err != nil {
-		return nil, err
-	}
-
 	key = args[0]
 	valAsbytes, err := stub.GetState(key)           //get the var from ledger
 	if err != nil {

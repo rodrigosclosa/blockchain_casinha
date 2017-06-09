@@ -80,11 +80,6 @@ func (t *SimpleChaincode) Pagar(stub shim.ChaincodeStubInterface, args []string)
 		return nil, errors.New("Incorrect number of arguments. Expecting 6")
 	}
 
-	err = sanitize_arguments(args)
-	if err != nil {
-		return nil, err
-	}
-
 	Pagador := args[0]
 	Recebedor := args[1]
 	DataEntrada := args[3]

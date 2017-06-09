@@ -96,8 +96,8 @@ func (t *SimpleChaincode) Pagar(stub shim.ChaincodeStubInterface, args []string)
 		"pagador": "` + Pagador + `",
 		"recebedor": "` + Recebedor + `", 
 		"dataEntrada": "` + DataEntrada + `", 
-		"dataSaida": ` + DataSaida + `, 
-		"valor": ` + strconv.Itoa(Valor) + `
+		"dataSaida": "` + DataSaida + `", 
+		"valor": "` + strconv.Itoa(Valor) + `"
 	}`
 
 	err = stub.PutState(Recebedor, []byte(str))

@@ -30,13 +30,13 @@ import (
 type SimpleChaincode struct {
 }
 
-type Pagamento struct {
-	Pagador     string `json:"pagador"`
-	Recebedor   string `json:"recebedor"`
-	DataEntrada string `json:"dataEntrada"`
-	DataSaida   string `json:"dataSaida"`
-	Valor       string    `json:"valor"`
-}
+// type Pagamento struct {
+// 	Pagador     string `json:"pagador"`
+// 	Recebedor   string `json:"recebedor"`
+// 	DataEntrada string `json:"dataEntrada"`
+// 	DataSaida   string `json:"dataSaida"`
+// 	Valor       string    `json:"valor"`
+// }
 
 func main() {
 	err := shim.Start(new(SimpleChaincode))
@@ -55,7 +55,7 @@ func (t *SimpleChaincode) Init(stub shim.ChaincodeStubInterface, function string
 	}
 
 	// this is a very simple dumb test.  let's write to the ledger and error on any errors
-	err = stub.PutState("selftest", []byte(Aval)) //making a test var "selftest", its handy to read this right away to test the network
+	err = stub.PutState(Aval, []byte(Aval)) //making a test var "selftest", its handy to read this right away to test the network
 	if err != nil {
 		return nil, err                          //self-test fail
 	}

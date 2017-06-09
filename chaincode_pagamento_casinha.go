@@ -68,7 +68,7 @@ func (t *SimpleChaincode) Init(stub shim.ChaincodeStubInterface, function string
 }
 
 // Transaction makes payment of X units from A to B
-func (t *SimpleChaincode) Pagar(stub shim.ChaincodeStubInterface, args []string) pb.Response {
+func Pagar(stub shim.ChaincodeStubInterface, args []string) pb.Response {
 	var err error
 	fmt.Println("CHAMANDO Pagar")
 
@@ -105,7 +105,7 @@ func (t *SimpleChaincode) Pagar(stub shim.ChaincodeStubInterface, args []string)
 }
 
 // Deletes an entity from state
-func (t *SimpleChaincode) delete(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
+func delete(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
 	fmt.Printf("Running delete")
 
 	if len(args) != 1 {
@@ -125,7 +125,7 @@ func (t *SimpleChaincode) delete(stub shim.ChaincodeStubInterface, args []string
 
 // Invoke callback representing the invocation of a chaincode
 // This chaincode will manage two accounts A and B and will transfer X units from A to B upon invoke
-func (t *SimpleChaincode) Invoke(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
+func (t *SimpleChaincode) Invoke(stub shim.ChaincodeStubInterface, function string, args []string) pb.Response {
 	fmt.Printf("Invoke called, determining function")
 
 	// Handle different functions
@@ -145,7 +145,7 @@ func (t *SimpleChaincode) Invoke(stub shim.ChaincodeStubInterface, function stri
 	return nil, errors.New("Received unknown function invocation")
 }
 
-func (t *SimpleChaincode) Run(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
+func (t *SimpleChaincode) Run(stub shim.ChaincodeStubInterface, function string, args []string) pb.Response {
 	fmt.Printf("Run called, passing through to Invoke (same function)")
 
 	// Handle different functions

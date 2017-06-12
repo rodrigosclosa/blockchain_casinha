@@ -17,6 +17,7 @@ limitations under the License.
 package main
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 
@@ -25,6 +26,14 @@ import (
 
 // SimpleChaincode example simple Chaincode implementation
 type SimpleChaincode struct {
+}
+
+type Pagamento struct {
+	Pagador     string `json:"pagador"`
+	Recebedor   string `json:"recebedor"`
+	DataEntrada string `json:"dataEntrada"`
+	DataSaida   string `json:"dataSaida"`
+	Valor       string `json:"valor"`
 }
 
 func main() {
@@ -69,7 +78,20 @@ func (t *SimpleChaincode) Query(stub shim.ChaincodeStubInterface, function strin
 
 	// Handle different functions
 	if function == "read" { //read a variable
-		return t.read(stub, args)
+		fmt.Println("Retornando pagamento")
+		pagamento, err := GetPagamento(args[0], stub)
+		if err != nil {
+			fmt.Println("Error from GetPagamento")
+			return nil, err
+		} else {
+			pagamentoBytes, err1 := json.Marshal(&pagamento)
+			if err1 != nil {
+				fmt.Println("Erro convertendo o pagamento")
+				return nil, err1
+			}
+			fmt.Println("Sucesso! Retornando pagamento.")
+			return pagamentoBytes, nil
+		}
 	}
 	fmt.Println("query did not find func: " + function)
 
@@ -78,52 +100,81 @@ func (t *SimpleChaincode) Query(stub shim.ChaincodeStubInterface, function strin
 
 // write - invoke function to write key/value pair
 func (t *SimpleChaincode) pagar(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
-	var Pagador, Recebedor, DataEntrada, DataSaida, Valor, str string
+	var pagador, recebedor, dataEntrada, dataSaida, valor string
 	var err error
+	var pagamento Pagamento
+
 	fmt.Println("running pagar()")
 
 	if len(args) != 5 {
 		return nil, errors.New("Incorrect number of arguments. Expecting 5.")
 	}
 
-	Pagador = args[0]
-	Recebedor = args[1]
-	DataEntrada = args[3]
-	DataSaida = args[4]
-	Valor = args[5]
+	pagador = args[0]
+	recebedor = args[1]
+	dataEntrada = args[3]
+	dataSaida = args[4]
+	valor = args[5]
 
-	str = `{
-		"pagador": "` + Pagador + `",
-		"recebedor": "` + Recebedor + `", 
-		"dataEntrada": "` + DataEntrada + `", 
-		"dataSaida": "` + DataSaida + `", 
-		"valor": "` + Valor + `"
-	}`
+	pagamento = Pagamento{ Pagador: pagador, Recebedor: recebedor, DataEntrada: dataEntrada, DataSaida: dataSaida, Valor: valor }
 
-	fmt.Println("Pagar - Json: " + str)
+	// str = `{
+	// 	"pagador": "` + Pagador + `",
+	// 	"recebedor": "` + Recebedor + `", 
+	// 	"dataEntrada": "` + DataEntrada + `", 
+	// 	"dataSaida": "` + DataSaida + `", 
+	// 	"valor": "` + Valor + `"
+	// }`
+	//fmt.Println("Pagar - Json: " + str)
 
-	err = stub.PutState(Recebedor, []byte(str)) //write the variable into the chaincode state
+	pagamentoBytes, err := json.Marshal(&pagamento)
+
+	if err != nil {
+		fmt.Println("Erro ao criar objeto pagamento ")
+		return nil, errors.New("Erro ao criar objeto pagamento")
+	}
+
+	err = stub.PutState(recebedor, pagamentoBytes) //write the variable into the chaincode state
 	if err != nil {
 		return nil, err
 	}
+
+	fmt.Println("Pagamento criado")
 	return nil, nil
 }
 
 // read - query function to read key/value pair
-func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
-	var key, jsonResp string
-	var err error
+// func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
+// 	var key, jsonResp string
+// 	var err error
 
-	if len(args) != 1 {
-		return nil, errors.New("Incorrect number of arguments. Expecting name of the key to query")
-	}
+// 	if len(args) != 1 {
+// 		return nil, errors.New("Incorrect number of arguments. Expecting name of the key to query")
+// 	}
 
-	key = args[0]
-	valAsbytes, err := stub.GetState(key)
+// 	key = args[0]
+// 	valAsbytes, err := stub.GetState(key)
+// 	if err != nil {
+// 		jsonResp = "{\"Error\":\"Failed to get state for " + key + "\"}"
+// 		return nil, errors.New(jsonResp)
+// 	}
+
+// 	return valAsbytes, nil
+// }
+
+func GetPagamento(recebedor string, stub shim.ChaincodeStubInterface) (Pagamento, error) {
+	var pagamento Pagamento
+	pagamentoBytes, err := stub.GetState(recebedor)
 	if err != nil {
-		jsonResp = "{\"Error\":\"Failed to get state for " + key + "\"}"
-		return nil, errors.New(jsonResp)
+		fmt.Println("Pagamento não encontrado: " + recebedor)
+		return pagamento, errors.New("Pagamento não encontrado: " + recebedor)
 	}
 
-	return valAsbytes, nil
+	err = json.Unmarshal(pagamentoBytes, &pagamento)
+	if err != nil {
+		fmt.Println("Erro ao converter o pagamento " + recebedor + "\n err:" + err.Error())
+		return pagamento, errors.New("Erro ao converter o pagamento " + recebedor)
+	}
+
+	return pagamento, nil
 }

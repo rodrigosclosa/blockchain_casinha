@@ -100,6 +100,8 @@ func (t *SimpleChaincode) pagar(stub shim.ChaincodeStubInterface, args []string)
 		"valor": "` + Valor + `"
 	}`
 
+	fmt.Println("Pagar - Json: " + str)
+
 	err = stub.PutState(Recebedor, []byte(str)) //write the variable into the chaincode state
 	if err != nil {
 		return nil, err

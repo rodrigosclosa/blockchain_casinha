@@ -65,7 +65,7 @@ func (t *SimpleChaincode) Invoke(stub shim.ChaincodeStubInterface, function stri
 	if function == "init" {
 		return t.Init(stub, "init", args)
 	} else if function == "pagar" {
-		return t.testePagar(stub, args)
+		return t.pagar(stub, args)
 	}
 	fmt.Println("invoke did not find func: " + function)
 
@@ -119,13 +119,7 @@ func (t *SimpleChaincode) pagar(stub shim.ChaincodeStubInterface, args []string)
 
 	//pagamento = Pagamento{ Pagador: pagador, Recebedor: recebedor, DataEntrada: dataEntrada, DataSaida: dataSaida, Valor: valor }
 
-	str := `{
-		"pagador": "` + pagador + `",
-		"recebedor": "` + recebedor + `",
-		"dataEntrada": "` + dataEntrada + `",
-		"dataSaida": "` + dataSaida + `",
-		"valor": "` + valor + `"
-	}`
+	str := pagador + `,` + recebedor + `,` + dataEntrada + `,` + dataSaida + `,` + valor
 
 	fmt.Println("Pagar - Json: " + str)
 	//return nil, errors.New("STR: " + str)

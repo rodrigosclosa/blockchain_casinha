@@ -65,7 +65,7 @@ func (t *SimpleChaincode) Invoke(stub shim.ChaincodeStubInterface, function stri
 	if function == "init" {
 		return t.Init(stub, "init", args)
 	} else if function == "pagar" {
-		return t.pagar(stub, args)
+		return t.testePagar(stub, args)
 	}
 	fmt.Println("invoke did not find func: " + function)
 
@@ -128,7 +128,7 @@ func (t *SimpleChaincode) pagar(stub shim.ChaincodeStubInterface, args []string)
 	}`
 
 	fmt.Println("Pagar - Json: " + str)
-	return nil, errors.New("STR: " + str)
+	//return nil, errors.New("STR: " + str)
 
 	//pagamentoBytes, err := json.Marshal(&pagamento)
 	// if err != nil {
@@ -137,6 +137,18 @@ func (t *SimpleChaincode) pagar(stub shim.ChaincodeStubInterface, args []string)
 	// }
 
 	err = stub.PutState(recebedor, []byte(str)) //write the variable into the chaincode state
+	if err != nil {
+		return nil, err
+	}
+
+	fmt.Println("Pagamento criado")
+	return nil, nil
+}
+
+func (t *SimpleChaincode) testePagar(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
+	var err error
+
+	err = stub.PutState(args[0], []byte(args[1])) //write the variable into the chaincode state
 	if err != nil {
 		return nil, err
 	}

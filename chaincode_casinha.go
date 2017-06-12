@@ -118,14 +118,16 @@ func (t *SimpleChaincode) pagar(stub shim.ChaincodeStubInterface, args []string)
 
 	pagamento = Pagamento{ Pagador: pagador, Recebedor: recebedor, DataEntrada: dataEntrada, DataSaida: dataSaida, Valor: valor }
 
-	// str = `{
-	// 	"pagador": "` + Pagador + `",
-	// 	"recebedor": "` + Recebedor + `", 
-	// 	"dataEntrada": "` + DataEntrada + `", 
-	// 	"dataSaida": "` + DataSaida + `", 
-	// 	"valor": "` + Valor + `"
-	// }`
-	//fmt.Println("Pagar - Json: " + str)
+	str := `{
+		"pagador": "` + pagador + `",
+		"recebedor": "` + recebedor + `", 
+		"dataEntrada": "` + dataEntrada + `", 
+		"dataSaida": "` + dataSaida + `", 
+		"valor": "` + valor + `"
+	}`
+
+	fmt.Println("Pagar - Json: " + str)
+	return nil, errors.New("STR: " + str)
 
 	pagamentoBytes, err := json.Marshal(&pagamento)
 

@@ -127,7 +127,7 @@ func (t *SimpleChaincode) pagar(stub shim.ChaincodeStubInterface, args []string)
 	}`
 
 	fmt.Println("Pagar - Json: " + str)
-	return nil, errors.New("STR: " + str)
+	//return nil, errors.New("STR: " + str)
 
 	pagamentoBytes, err := json.Marshal(&pagamento)
 
@@ -175,7 +175,7 @@ func GetPagamento(recebedor string, stub shim.ChaincodeStubInterface) (Pagamento
 	err = json.Unmarshal(pagamentoBytes, &pagamento)
 	if err != nil {
 		fmt.Println("Erro ao converter o pagamento " + recebedor + "\n err:" + err.Error())
-		return pagamento, errors.New("Erro ao converter o pagamento " + recebedor)
+		return pagamento, errors.New("Erro ao converter o pagamento " + recebedor + "\n err:" + err.Error())
 	}
 
 	return pagamento, nil

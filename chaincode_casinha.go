@@ -20,6 +20,7 @@ import (
 	//"encoding/json"
 	"errors"
 	"fmt"
+	"strconv"
 
 	"github.com/hyperledger/fabric/core/chaincode/shim"
 )
@@ -119,7 +120,7 @@ func (t *SimpleChaincode) pagar(stub shim.ChaincodeStubInterface, args []string)
 
 	//pagamento = Pagamento{ Pagador: pagador, Recebedor: recebedor, DataEntrada: dataEntrada, DataSaida: dataSaida, Valor: valor }
 
-	str := `"`+ pagador + `,` + recebedor + `,` + dataEntrada + `,` + dataSaida + `,` + valor + `"`
+	str := `"`+ strconv.Quote(pagador) + `,` + strconv.Quote(recebedor) + `,` + strconv.Quote(dataEntrada) + `,` + strconv.Quote(dataSaida) + `,` + strconv.Quote(valor) + `"`
 
 	fmt.Println("Pagar - Json: " + str)
 	//return nil, errors.New("STR: " + str)

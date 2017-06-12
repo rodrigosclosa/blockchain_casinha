@@ -82,8 +82,8 @@ func (t *SimpleChaincode) pagar(stub shim.ChaincodeStubInterface, args []string)
 	var err error
 	fmt.Println("running pagar()")
 
-	if len(args) != 6 {
-		return nil, errors.New("Incorrect number of arguments. Expecting 6.")
+	if len(args) != 5 {
+		return nil, errors.New("Incorrect number of arguments. Expecting 5.")
 	}
 
 	Pagador = args[0]

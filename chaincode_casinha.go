@@ -1,17 +1,9 @@
 /*
-Copyright IBM Corp 2016 All Rights Reserved.
+	Autor: Rodrigo Sclosa 
+	E-mail: rodrigogs@ciandt.com
+	Data: 13/06/2017
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-		 http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
+	Chaincode paga recebimento de pagamentos da casinha via rede Blockchain.
 */
 
 package main
@@ -38,15 +30,11 @@ type Pagamento struct {
 
 // Init resets all the things
 func (t *SimpleChaincode) Init(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
-	if len(args) != 1 {
-		return nil, errors.New("Incorrect number of arguments. Expecting 1")
-	}
 
 	var blank []string
 	blankBytes, _ := json.Marshal(&blank)
 	err := stub.PutState("init_casinha", blankBytes)
 
-	//err := stub.PutState("init_casinha", []byte(args[0]))
 	if err != nil {
 		return nil, err
 	}
@@ -64,9 +52,9 @@ func (t *SimpleChaincode) Invoke(stub shim.ChaincodeStubInterface, function stri
 	} else if function == "pagar" {
 		return t.pagar(stub, args)
 	}
-	fmt.Println("invoke did not find func: " + function)
+	fmt.Println("Função não reconhecida: " + function)
 
-	return nil, errors.New("Received unknown function invocation: " + function)
+	return nil, errors.New("Função não reconhecida: " + function)
 }
 
 // Query is our entry point for queries
@@ -78,7 +66,7 @@ func (t *SimpleChaincode) Query(stub shim.ChaincodeStubInterface, function strin
 		fmt.Println("Retornando pagamento")
 		pagamento, err := GetPagamento(args[0], stub)
 		if err != nil {
-			fmt.Println("Error from GetPagamento")
+			fmt.Println("Erro de GetPagamento")
 			return nil, err
 		} else {
 			pagamentoBytes, err1 := json.Marshal(&pagamento)
@@ -91,9 +79,9 @@ func (t *SimpleChaincode) Query(stub shim.ChaincodeStubInterface, function strin
 		}
 		//eturn t.read(stub, args)
 	}
-	fmt.Println("query did not find func: " + function)
+	fmt.Println("Função não reconhecida: " + function)
 
-	return nil, errors.New("Received unknown function query: " + function)
+	return nil, errors.New("Função não reconhecida: " + function)
 }
 
 // write - invoke function to write key/value pair
@@ -119,19 +107,13 @@ func (t *SimpleChaincode) pagar(stub shim.ChaincodeStubInterface, args []string)
 
 	// pagador = args[0]
 	// recebedor = args[1]
-	// dataEntrada = args[3]
-	// dataSaida = args[4]
-	// valor = args[5]
+	// dataEntrada = args[2]
+	// dataSaida = args[3]
+	// valor = args[4]
 	
 	// pagamento := Pagamento{ Pagador: pagador, Recebedor: recebedor, DataEntrada: dataEntrada, DataSaida: dataSaida, Valor: valor }
 	// fmt.Println(pagamento)
-	//str := `"`+ strconv.Quote(pagador) + `,` + strconv.Quote(recebedor) + `,` + strconv.Quote(dataEntrada) + `,` + strconv.Quote(dataSaida) + `,` + strconv.Quote(valor) + `"`
 
-	//fmt.Println("Pagar - Json: " + string(pagamento))
-	//return nil, errors.New("STR: " + str)
-
-	//bytes := []byte(pagamento)
-	//rawIn := json.RawMessage(pagamento)
 	pagamentoBytes, err := json.Marshal(&pagamento)
 	if err != nil {
 		fmt.Println("Erro ao criar objeto pagamento ")
@@ -139,7 +121,6 @@ func (t *SimpleChaincode) pagar(stub shim.ChaincodeStubInterface, args []string)
 	}
 
 	err = stub.PutState(recebedor, []byte(pagamentoBytes)) //write the variable into the chaincode state
-	//err = stub.PutState(recebedor, []byte(string(pagamento))) //write the variable into the chaincode state
 	if err != nil {
 		return nil, err
 	}
@@ -147,37 +128,6 @@ func (t *SimpleChaincode) pagar(stub shim.ChaincodeStubInterface, args []string)
 	fmt.Println("Pagamento criado")
 	return pagamentoBytes, nil
 }
-
-// func (t *SimpleChaincode) testePagar(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
-// 	var err error
-
-// 	err = stub.PutState(args[0], []byte(args[1])) //write the variable into the chaincode state
-// 	if err != nil {
-// 		return nil, err
-// 	}
-
-// 	fmt.Println("Pagamento criado")
-// 	return nil, nil
-// }
-
-// read - query function to read key/value pair
-// func (t *SimpleChaincode) read(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
-// 	var key, jsonResp string
-// 	var err error
-
-// 	if len(args) != 1 {
-// 		return nil, errors.New("Incorrect number of arguments. Expecting name of the key to query")
-// 	}
-
-// 	key = args[0]
-// 	valAsbytes, err := stub.GetState(key)
-// 	if err != nil {
-// 		jsonResp = "{\"Error\":\"Failed to get state for " + key + "\"}"
-// 		return nil, errors.New(jsonResp)
-// 	}
-
-// 	return valAsbytes, nil
-// }
 
 func GetPagamento(recebedor string, stub shim.ChaincodeStubInterface) (Pagamento, error) {
 	var pagamento Pagamento

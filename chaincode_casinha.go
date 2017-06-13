@@ -98,8 +98,9 @@ func (t *SimpleChaincode) Query(stub shim.ChaincodeStubInterface, function strin
 
 // write - invoke function to write key/value pair
 func (t *SimpleChaincode) pagar(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
-	var pagador, recebedor, dataEntrada, dataSaida, valor string
+	//var pagador, recebedor, dataEntrada, dataSaida, valor string
 	var err error
+	var recebedor string
 
 	fmt.Println("running pagar()")
 
@@ -107,14 +108,23 @@ func (t *SimpleChaincode) pagar(stub shim.ChaincodeStubInterface, args []string)
 		return nil, errors.New("Incorrect number of arguments. Expecting 5.")
 	}
 
-	pagador = args[0]
 	recebedor = args[1]
-	dataEntrada = args[3]
-	dataSaida = args[4]
-	valor = args[5]
 
-	pagamento := Pagamento{ Pagador: pagador, Recebedor: recebedor, DataEntrada: dataEntrada, DataSaida: dataSaida, Valor: valor }
-	fmt.Println(pagamento)
+	var pagamento Pagamento
+	pagamento.Pagador = args[0]
+	pagamento.Recebedor = recebedor
+	pagamento.DataEntrada = args[2]
+	pagamento.DataSaida = args[3]
+	pagamento.Valor = args[4]
+
+	// pagador = args[0]
+	// recebedor = args[1]
+	// dataEntrada = args[3]
+	// dataSaida = args[4]
+	// valor = args[5]
+	
+	// pagamento := Pagamento{ Pagador: pagador, Recebedor: recebedor, DataEntrada: dataEntrada, DataSaida: dataSaida, Valor: valor }
+	// fmt.Println(pagamento)
 	//str := `"`+ strconv.Quote(pagador) + `,` + strconv.Quote(recebedor) + `,` + strconv.Quote(dataEntrada) + `,` + strconv.Quote(dataSaida) + `,` + strconv.Quote(valor) + `"`
 
 	//fmt.Println("Pagar - Json: " + string(pagamento))

@@ -36,20 +36,17 @@ type Pagamento struct {
 	Valor       string `json:"valor"`
 }
 
-func main() {
-	err := shim.Start(new(SimpleChaincode))
-	if err != nil {
-		fmt.Printf("Error starting Simple chaincode: %s", err)
-	}
-}
-
 // Init resets all the things
 func (t *SimpleChaincode) Init(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
 	if len(args) != 1 {
 		return nil, errors.New("Incorrect number of arguments. Expecting 1")
 	}
 
-	err := stub.PutState("init_casinha", []byte(args[0]))
+	var blank []string
+	blankBytes, _ := json.Marshal(&blank)
+	err := stub.PutState("init_casinha", blankBytes)
+
+	//err := stub.PutState("init_casinha", []byte(args[0]))
 	if err != nil {
 		return nil, err
 	}
@@ -116,14 +113,16 @@ func (t *SimpleChaincode) pagar(stub shim.ChaincodeStubInterface, args []string)
 	dataSaida = args[4]
 	valor = args[5]
 
-	pagamento := &Pagamento{ Pagador: pagador, Recebedor: recebedor, DataEntrada: dataEntrada, DataSaida: dataSaida, Valor: valor }
-
+	pagamento := Pagamento{ Pagador: pagador, Recebedor: recebedor, DataEntrada: dataEntrada, DataSaida: dataSaida, Valor: valor }
+	fmt.Println(pagamento)
 	//str := `"`+ strconv.Quote(pagador) + `,` + strconv.Quote(recebedor) + `,` + strconv.Quote(dataEntrada) + `,` + strconv.Quote(dataSaida) + `,` + strconv.Quote(valor) + `"`
 
-	//fmt.Println("Pagar - Json: " + str)
+	//fmt.Println("Pagar - Json: " + string(pagamento))
 	//return nil, errors.New("STR: " + str)
 
-	pagamentoBytes, err := json.Marshal(pagamento)
+	//bytes := []byte(pagamento)
+	//rawIn := json.RawMessage(pagamento)
+	pagamentoBytes, err := json.Marshal(&pagamento)
 	if err != nil {
 		fmt.Println("Erro ao criar objeto pagamento ")
 		return nil, errors.New("Erro ao criar objeto pagamento")
@@ -172,6 +171,7 @@ func (t *SimpleChaincode) pagar(stub shim.ChaincodeStubInterface, args []string)
 
 func GetPagamento(recebedor string, stub shim.ChaincodeStubInterface) (Pagamento, error) {
 	var pagamento Pagamento
+	pagamento = Pagamento{}
 	pagamentoBytes, err := stub.GetState(recebedor)
 	if err != nil {
 		fmt.Println("Pagamento não encontrado: " + recebedor)
@@ -185,4 +185,11 @@ func GetPagamento(recebedor string, stub shim.ChaincodeStubInterface) (Pagamento
 	}
 
 	return pagamento, nil
+}
+
+func main() {
+	err := shim.Start(new(SimpleChaincode))
+	if err != nil {
+		fmt.Printf("Error starting Simple chaincode: %s", err)
+	}
 }
